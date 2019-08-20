@@ -12,7 +12,7 @@ AUTO 4,1
 			.INB /DEV/SPACE/SRC/DHGR.PLOT.S
 			.INB /DEV/SPACE/SRC/DHGR.CLR.S
             .INB /DEV/SPACE/SRC/DHGR.LINES.S
-*            .INB /DEV/SPACE/SRC/ENGINE.S
+            .INB /DEV/SPACE/SRC/ENGINE.S
             .INB /DEV/SPACE/SRC/DATA.S
 *--------------------------------------
 REF         .HS 00              ; ProDOS reference number
@@ -96,7 +96,17 @@ RUN
             STA RAMRD_OFF
             STA RAMWRT_OFF
 
-            JSR HORIZLINE
+            LDY #$02
+            JSR SETDCOLOR
+            LDX #$16
+            LDY #$20
+            JSR PLOT
+    
+TEST        LDX #$25
+            LDY #$20
+            JSR BLOC
+            .DA #CHAIR,/CHAIR
+            LDA #$EE
             BRK
 
 *            >RELOC2AUX D2PLOT,D2PLOTEND

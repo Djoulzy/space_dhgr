@@ -7,7 +7,8 @@ AUTO 4,1
 DBL_DRAW	.HS 00          ; Si = 01, on dessine sur les deux pages
 *--------------------------------------
 * Color number (00 - 15) dans Y
-SETDCOLOR	TAY
+SETDCOLOR
+*			TAY
 			LDA CLOM,Y 			;Lookup low byte of MAIN memory colour table
 			STA ORMAIN+1		;Update the ORA instruction
 			LDA CHIM,Y 			;Lookup high byte of MAIN memory colour table
@@ -47,10 +48,20 @@ PLOT_S		LDY MBOFFSET,X		;Find what byte if any in MAIN we are working in
 			AND MAINAND,X		;Erase pixel bits
 ORMAIN		ORA MAINGR,X		;Draw coloured bits
 			STA (SCRN_LO),Y		;Write back to screen
+
+*			PHA
+*			TYA
+*			CLC
+*			ADC #$20
+*			TAY
+*			PLA
+*			STA (SCRN_LO),Y
+
 			PLX
 AUX			LDY ABOFFSET,X 		;Find what byte if any in AUX we are working in
 			BMI PLOTEND			;If no part of the pixel is in AUX - end the program
 
+			PHX
 			PHA
 			LDA XMOD7,X
 			TAX
@@ -62,6 +73,16 @@ AUX			LDY ABOFFSET,X 		;Find what byte if any in AUX we are working in
 			AND AUXAND,X		;Erase pixel bits
 ORAUX		ORA AUXGR,X			;Draw coloured bits
 			STA (SCRN_LO),Y		;Write back to screen
+
+*			PHA
+*			TYA
+*			CLC
+*			ADC #$20
+*			TAY
+*			PLA
+*			STA (SCRN_LO),Y
+
+			PLX
 PLOTEND		RTS 
 *--------------------------------------
 MAN

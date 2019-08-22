@@ -43,58 +43,81 @@ TIME10      .HS 00,0A,14,1E,28,32,3C,46,50,5A
             STY PTR+1
             .EM
 *--------------------------------------
-SAVEAREA
+            .MA CPY_SCR
+            LDA (SCRN_LO),Y
+            PHY
+            LDY CPTY
+            STA (SAVE_LO),Y
+            PLY
+            DEC CPTY
+            .EM
+*--------------------------------------
+            .MA PST_SCR
+            PHY
+            LDY CPTY
+            LDA (SAVE_LO),Y
+            PLY
+            STA (SCRN_LO),Y
+            DEC CPTY
+            .EM
+*--------------------------------------
+            .MA INIT_CPY_PST
             TYA
             CLC
-            ADC #$1C
-            STA BLOCBUFF+1      ; Valeur de CoordY + 28 (derniere ligne du bloc)
+            ADC #$1B
+            STA BLOCBUFF+1      ; Valeur de CoordY + 27 (derniere ligne du bloc)
 
-            TXA                 ; CoordX dans A
-            LSR                 ; CoordX / 2
-            TAX
-            LDA XDIV7,X         ; CoordX / 7
-            ASL
-            ASL
-            CLC
-            ADC #$04            ; +4 (fin de la ligne)
+            TXA
+            ADC #$0D
+            TAY
+    		LDA ABOFFSET,Y		; Si X ne s'y trouve pas, on decremente jusqu'a en trouver un
+            AND MBOFFSET,Y
             STA BLOCBUFF
-
             ; Debut boucle generale
             LDA #$E0            ; de 224 ($E0) -> 0
             STA CPTY
-
+            .EM
+*--------------------------------------
+PASTEAREA   >INIT_CPY_PST
 .2          LDY BLOCBUFF+1
             >FINDY
-
             ; Debut Boucle sur CoordX
             LDA #$04            ; de 04 -> 1
             STA CPTX
             LDY BLOCBUFF
 
 .1          STA PAGE2_ON
-            LDA (SCRN_LO),Y
-            PHY
-            LDY CPTY
-            STA (SAVE_LO),Y
-            PLY
-            DEC CPTY
-
+            >PST_SCR
             STA PAGE2_OFF
-            LDA (SCRN_LO),Y
-            PHY
-            LDY CPTY
-            STA (SAVE_LO),Y
-            PLY
-            DEC CPTY
+            >PST_SCR
             BEQ .3              ; Fin de la zone à copier
 
             DEY
             DEC CPTX
             BNE .1
-
             DEC BLOCBUFF+1      ; On passe à la ligne du dessus
             JMP .2              ; et on recommance
+.3          RTS
+*--------------------------------------
+SAVEAREA    >INIT_CPY_PST
+.2          LDY BLOCBUFF+1
+            >FINDY
+            ; Debut Boucle sur CoordX
+            LDA #$04            ; de 04 -> 1
+            STA CPTX
+            LDY BLOCBUFF
 
+.1          STA PAGE2_ON
+            >CPY_SCR
+            STA PAGE2_OFF
+            >CPY_SCR
+            BEQ .3              ; Fin de la zone à copier
+
+            DEY
+            DEC CPTX
+            BNE .1
+            DEC BLOCBUFF+1      ; On passe à la ligne du dessus
+            JMP .2              ; et on recommance
 .3          RTS
 *--------------------------------------
 BLOC        TXA

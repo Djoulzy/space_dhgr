@@ -13,6 +13,7 @@ AUTO 4,1
 			.INB /DEV/SPACE/SRC/DHGR.CLR.S
             .INB /DEV/SPACE/SRC/DHGR.LINES.S
             .INB /DEV/SPACE/SRC/ENGINE.S
+            .INB /DEV/SPACE/SRC/TOOLS.S
             .INB /DEV/SPACE/SRC/DATA.S
 *--------------------------------------
 REF         .HS 00              ; ProDOS reference number
@@ -73,10 +74,14 @@ PLAYER_DWN  .HS 38,69           ; Pos X,Y
 *            >DRAW_BLOC PLAYER_UP
 
 *            RTS
-*KEYB        LDA $C000
-*            BPL KEYB
-*            AND #$7F
-*            STA STROBE
+
+            .MA MYPLOT
+            LDY ]3
+            JSR SETDCOLOR
+            LDX ]1
+            LDY ]2
+            JSR PLOT
+            .EM
 *--------------------------------------
 RUN
             >GODHGR2
@@ -96,11 +101,13 @@ RUN
             STA RAMRD_OFF
             STA RAMWRT_OFF
 
-            LDY #$06
-            JSR SETDCOLOR
-            LDX #$00
-            LDY #$00
-            JSR PLOT
+            >MYPLOT #$00,#$00,#$0F
+
+            >MYPLOT #$00,#$62,#$0F
+            >MYPLOT #$04,#$62,#$0F
+            >MYPLOT #$07,#$62,#$0F
+            >MYPLOT #$09,#$62,#$0F
+            >MYPLOT #$0C,#$62,#$0F
     
 TEST        
             LDA #SAVEBUFF
@@ -108,25 +115,25 @@ TEST
             LDA /SAVEBUFF
             STA SAVE_HI
 
+            >GET_KEY
+
+            LDY #$64
             LDX #$00
-            LDY #$00
             JSR BLOC
             .DA #TRUC,/TRUC
 
+            LDY #$64
             LDX #$00
-            LDY #$00
             JSR BLOC
             .DA #CHAIR,/CHAIR
 
-            LDX #$7D
-            LDY #$00
-            JSR BLOC
-            .DA #TRUC,/TRUC
+            LDY #$64
+            LDX #$00
+            JSR SAVEAREA
 
-*            LDX #$00
-*            LDY #$00
-*            JSR SAVEAREA
-*            LDA #$EE
+            LDY #$34
+            LDX #$00
+            JSR PASTEAREA
 
             BRK
 

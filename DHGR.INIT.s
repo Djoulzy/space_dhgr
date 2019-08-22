@@ -4,8 +4,6 @@ NEW
             .OP	65C02
             .LIST OFF
 *--------------------------------------
-STROBE		.EQ $C010
-
 GRAPHON		.EQ $C050
 FULLON		.EQ $C052
 MIXED		.EQ $C053

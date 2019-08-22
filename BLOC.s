@@ -43,11 +43,69 @@ TIME10      .HS 00,0A,14,1E,28,32,3C,46,50,5A
             STY PTR+1
             .EM
 *--------------------------------------
-BLOC        STX BLOCBUFF
+SAVEAREA
             TYA
             CLC
             ADC #$1C
-            STA BLOCBUFF+1
+            STA BLOCBUFF+1      ; Valeur de CoordY + 28 (derniere ligne du bloc)
+
+            TXA                 ; CoordX dans A
+            LSR                 ; CoordX / 2
+            TAX
+            LDA XDIV7,X         ; CoordX / 7
+            ASL
+            ASL
+            CLC
+            ADC #$04            ; +4 (fin de la ligne)
+            STA BLOCBUFF
+
+            ; Debut boucle generale
+            LDA #$E0            ; de 224 ($E0) -> 0
+            STA CPTY
+
+.2          LDY BLOCBUFF+1
+            >FINDY
+
+            ; Debut Boucle sur CoordX
+            LDA #$04            ; de 04 -> 1
+            STA CPTX
+            LDY BLOCBUFF
+
+.1          STA PAGE2_ON
+            LDA (SCRN_LO),Y
+            PHY
+            LDY CPTY
+            STA (SAVE_LO),Y
+            PLY
+            DEC CPTY
+
+            STA PAGE2_OFF
+            LDA (SCRN_LO),Y
+            PHY
+            LDY CPTY
+            STA (SAVE_LO),Y
+            PLY
+            DEC CPTY
+            BEQ .3              ; Fin de la zone à copier
+
+            DEY
+            DEC CPTX
+            BNE .1
+
+            DEC BLOCBUFF+1      ; On passe à la ligne du dessus
+            JMP .2              ; et on recommance
+
+.3          RTS
+*--------------------------------------
+BLOC        TXA
+            CLC
+            ADC #$0D
+            STA BLOCBUFF
+
+            TYA
+            CLC
+            ADC #$1B
+            STA BLOCBUFF+1      ; Valeur de Y + 27 (derniere ligne du bloc)
             >GET_CANVAS
 
             LDA #$C4            ; Y va aller de $C4 -> $01 soit 196 octect
@@ -55,13 +113,10 @@ BLOC        STX BLOCBUFF
 
 .3          LDY BLOCBUFF+1
             >FINDY
-            LDA #$0C
-            STA CPTX            ; CPTX de $0D -> $00
+            LDA #$0D
+            STA CPTX            ; CPTX de $0E -> $01
 
-.2          LDA BLOCBUFF        ; CoordX
-            CLC
-            ADC CPTX            ; CoordX + CptX
-            TAX                 ; X contient CoordX
+            LDX BLOCBUFF        ; CoordX
 
 .8          LDY CPTY
             DEY

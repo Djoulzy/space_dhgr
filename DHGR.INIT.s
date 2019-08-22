@@ -22,8 +22,10 @@ IS_PAGE2	.EQ	$C01C
 SCRN_LO		.EQ $1D				;Zero page location for low byte of our screen row
 SCRN_HI		.EQ $1E				;Zero page location for high byte of our screen row
 *SCRN_HI2	.EQ $1F				;Zero page location for high byte of our screen row (page2)
-SCRN_LO2	.EQ $FA
-SCRN_HI2	.EQ $FB
+SAVE_LO		.EQ $FA
+SAVE_HI		.EQ $FB
+UNDER_MAIN	.EQ $FC
+UNDER_AUX	.EQ $FD
 
 CPTX        .EQ $06
 CPTY        .EQ $08

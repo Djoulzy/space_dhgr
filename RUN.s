@@ -96,17 +96,38 @@ RUN
             STA RAMRD_OFF
             STA RAMWRT_OFF
 
-            LDY #$02
+            LDY #$06
             JSR SETDCOLOR
-            LDX #$16
-            LDY #$20
+            LDX #$00
+            LDY #$00
             JSR PLOT
     
-TEST        LDX #$25
-            LDY #$20
+TEST        
+            LDA #SAVEBUFF
+            STA SAVE_LO
+            LDA /SAVEBUFF
+            STA SAVE_HI
+
+            LDX #$00
+            LDY #$00
+            JSR BLOC
+            .DA #TRUC,/TRUC
+
+            LDX #$00
+            LDY #$00
             JSR BLOC
             .DA #CHAIR,/CHAIR
-            LDA #$EE
+
+            LDX #$7D
+            LDY #$00
+            JSR BLOC
+            .DA #TRUC,/TRUC
+
+*            LDX #$00
+*            LDY #$00
+*            JSR SAVEAREA
+*            LDA #$EE
+
             BRK
 
 *            >RELOC2AUX D2PLOT,D2PLOTEND

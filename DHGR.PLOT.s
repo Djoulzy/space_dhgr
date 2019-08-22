@@ -43,19 +43,11 @@ PLOT_S		LDY MBOFFSET,X		;Find what byte if any in MAIN we are working in
 			PLA
 
 			STA PAGE2_OFF		;Map $2000 to MAIN memory
-
 			LDA (SCRN_LO),Y		;Load screen data
+			STA UNDER_MAIN
 			AND MAINAND,X		;Erase pixel bits
 ORMAIN		ORA MAINGR,X		;Draw coloured bits
 			STA (SCRN_LO),Y		;Write back to screen
-
-*			PHA
-*			TYA
-*			CLC
-*			ADC #$20
-*			TAY
-*			PLA
-*			STA (SCRN_LO),Y
 
 			PLX
 AUX			LDY ABOFFSET,X 		;Find what byte if any in AUX we are working in
@@ -68,20 +60,11 @@ AUX			LDY ABOFFSET,X 		;Find what byte if any in AUX we are working in
 			PLA
 
 			STA PAGE2_ON		;Map $2000 to AUX memory
-
 			LDA (SCRN_LO),Y		;Load screen data
+			STA UNDER_AUX
 			AND AUXAND,X		;Erase pixel bits
 ORAUX		ORA AUXGR,X			;Draw coloured bits
 			STA (SCRN_LO),Y		;Write back to screen
-
-*			PHA
-*			TYA
-*			CLC
-*			ADC #$20
-*			TAY
-*			PLA
-*			STA (SCRN_LO),Y
-
 			PLX
 PLOTEND		RTS 
 *--------------------------------------

@@ -100,40 +100,80 @@ RUN
             STA PAGE2_OFF
             STA RAMRD_OFF
             STA RAMWRT_OFF
-
-            >MYPLOT #$00,#$00,#$0F
-
-            >MYPLOT #$00,#$62,#$0F
-            >MYPLOT #$04,#$62,#$0F
-            >MYPLOT #$07,#$62,#$0F
-            >MYPLOT #$09,#$62,#$0F
-            >MYPLOT #$0C,#$62,#$0F
     
 TEST        
-            LDA #SAVEBUFF
-            STA SAVE_LO
-            LDA /SAVEBUFF
-            STA SAVE_HI
+            .MA TBLOC
 
-            >GET_KEY
-
-            LDY #$64
+            ; Ligne haut
+            LDY ]2
             LDX #$00
             JSR BLOC
-            .DA #TRUC,/TRUC
+            .DA #TRUC2,/TRUC2
+            LDY ]2
+            LDX #$0E
+            JSR BLOC
+            .DA #TRUC2,/TRUC2
 
-            LDY #$64
+            ; Ligne basse
+            LDA ]2
+            CLC
+            ADC #$1D
+            TAY
             LDX #$00
             JSR BLOC
-            .DA #CHAIR,/CHAIR
+            .DA #TRUC2,/TRUC2
+            LDA ]2
+            CLC
+            ADC #$1D
+            TAY
+            LDX #$0E
+            JSR BLOC
+            .DA #TRUC2,/TRUC2
 
-            LDY #$64
-            LDX #$00
-            JSR SAVEAREA
+            ; Motif
+            LDY ]2
+            LDX ]1
+            JSR BLOC
+            .DA #TRUC2,/TRUC2
+            LDY ]2
+            LDX ]1
+            JSR BLOC
+            .DA #ITEM_1,/ITEM_1
 
-            LDY #$34
-            LDX #$00
-            JSR PASTEAREA
+            ; Copy Colle
+            LDY ]2
+            LDX ]1
+            JSR COPY
+            LDX ]1
+            LDA ]2
+            CLC
+            ADC #$1D
+            TAY
+            JSR PASTE
+            .EM
+
+            >SETUP_BUFF SAVEBUFF,SAVE_MAIN
+
+            >TBLOC #$03,#$00
+            >TBLOC #$0A,#$3C
+            >TBLOC #$11,#$78
+
+
+            LDX #$7D
+
+LOOP        LDY #$3C
+            JSR COPY
+            PHX
+            PHY
+            JSR BLOC
+            .DA #ITEM_1,/ITEM_1
+            PLY
+            PLX
+            >WAITVBL
+            JSR PASTE
+            
+            DEX
+            BNE LOOP
 
             BRK
 

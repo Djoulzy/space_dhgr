@@ -3,6 +3,7 @@ NEW
 AUTO 4,1
 			.LIST OFF
             .OP	65C02
+*            .OR 6000
 *--------------------------------------
 UP          .EQ 01
 DOWN        .EQ 00
@@ -11,96 +12,6 @@ BLOCBUFF    .HS 00,00       ; Pos X,Y
             .HS 00,00       ; Orientation, Vitesse
 
 TIME10      .HS 00,0A,14,1E,28,32,3C,46,50,5A
-*--------------------------------------
-            .MA CPY_SCR
-            LDA (SCRN_LO),Y
-            PHY
-            LDY CPTY
-            STA (SAVE_LO),Y
-            PLY
-            .EM
-*--------------------------------------
-            .MA PST_SCR
-            PHY
-            LDY CPTY
-            LDA (SAVE_LO),Y
-            PLY
-            STA (SCRN_LO),Y
-            .EM
-*--------------------------------------
-            .MA INIT_CPY_PST
-            PHY
-            PHX
-            TYA
-            CLC
-            ADC #$1B
-            STA BLOCBUFF+1      ; Valeur de CoordY + 27 (derniere ligne du bloc)
-
-            TXA
-            CLC
-            ADC #$0D
-            TAX
-            LDA MBOFFSET,X		; Si X ne s'y trouve pas, on decremente jusqu'a en trouver un
-            BPL :1
-            LDA ABOFFSET,X
-
-:1          STA BLOCBUFF
-            ; Debut boucle generale
-            LDA #$E0            ; de 224 ($E0) -> 0
-            STA CPTY
-            .EM
-*--------------------------------------
-            .MA END_CPY_PST
-            PLX
-            PLY
-            RTS
-            .EM
-*--------------------------------------
-PASTEAREA   >INIT_CPY_PST
-.2          LDY BLOCBUFF+1
-            >FINDY
-            ; Debut Boucle sur CoordX
-            LDA #$04            ; de 04 -> 1
-            STA CPTX
-            LDY BLOCBUFF
-
-.1          STA PAGE2_OFF
-            >PST_SCR
-            DEC CPTY
-            STA PAGE2_ON
-            >PST_SCR
-            DEC CPTY
-            BEQ .3              ; Fin de la zone à copier
-
-            DEY
-            DEC CPTX
-            BNE .1
-            DEC BLOCBUFF+1      ; On passe à la ligne du dessus
-            JMP .2              ; et on recommance
-.3          >END_CPY_PST
-*--------------------------------------
-COPYAREA    >INIT_CPY_PST
-.2          LDY BLOCBUFF+1
-            >FINDY
-            ; Debut Boucle sur CoordX
-            LDA #$04            ; de 04 -> 1
-            STA CPTX
-            LDY BLOCBUFF
-
-.1          STA PAGE2_OFF
-            >CPY_SCR
-            DEC CPTY
-            STA PAGE2_ON
-            >CPY_SCR
-            DEC CPTY
-            BEQ .3              ; Fin de la zone à copier
-
-            DEY
-            DEC CPTX
-            BNE .1
-            DEC BLOCBUFF+1      ; On passe à la ligne du dessus
-            JMP .2              ; et on recommance
-.3          >END_CPY_PST
 *--------------------------------------
             .MA GET_CANVAS
             PLA
@@ -212,7 +123,8 @@ BLOC        TXA
             STA ]2,X
             .EM
 *--------------------------------------
-COPY        PHY
+COPY        
+            PHY
             PHX
 
             STY BLOCBUFF+1
@@ -258,7 +170,8 @@ COPY        PHY
             INC BLOCBUFF+1      ; On passe à la ligne du dessus
             JMP .2
 
-.4          PLX
+.4          
+            PLX
             PLY
             RTS
 *--------------------------------------

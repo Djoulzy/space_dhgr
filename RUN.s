@@ -3,11 +3,12 @@ NEW
 AUTO 4,1
 			.LIST OFF
             .OP	65C02
+*            .OR $400
 *--------------------------------------
 			.INB /DEV/SPACE/SRC/DHGR.OFFSET.S
 			.INB /DEV/SPACE/SRC/DHGR.TABLES.S
             .INB /DEV/SPACE/SRC/MEM.S
-*            .INB /DEV/SPACE/SRC/MLI.S
+            .INB /DEV/SPACE/SRC/MLI.S
 			.INB /DEV/SPACE/SRC/DHGR.INIT.S
 			.INB /DEV/SPACE/SRC/DHGR.PLOT.S
 			.INB /DEV/SPACE/SRC/DHGR.CLR.S
@@ -16,186 +17,95 @@ AUTO 4,1
             .INB /DEV/SPACE/SRC/TOOLS.S
             .INB /DEV/SPACE/SRC/DATA.S
 *--------------------------------------
-REF         .HS 00              ; ProDOS reference number
-OBJMEMLOC   .EQ $0800
-DATAMEMLOC  .EQ $8000
-*MLIPARAMS   .HS 00              ;number-of-parameters   0853
-*            .HS 00,00           ;pointer to pathname
-*            .HS C3              ;Normal file access permitted
-*            .HS 04              ;Make it a text file
-*            .HS 00,00           ;AUX_TYPE, not used
-*            .HS 01              ;Standard file
-*            .HS 00,00           ;Creation date (unused)
-*            .HS 00,00           ;Creation time (unused)
+*PLAYER_UP   .HS 38,5B           ; Pos X,Y
+*            .DA #MAN_HI,/MAN_HI ; Addr SpriteSheet Lo/Hi
+*            .HS 01,00           ; Orientation / Vitesse
+*            .HS 64,5B           ; Destination X,Y
+*            .HS 00,00           ; Ancienne position
+*
+*PLAYER_DWN  .HS 38,69           ; Pos X,Y
+*            .DA #MAN_LO,/MAN_LO ; Addr SpriteSheet Lo/Hi
+*            .HS 01,00           ; Orientation / Vitesse
+*            .HS 64,69           ; Destination X,Y
+*            .HS 00,00           ; Ancienne position
 *--------------------------------------
-PLAYER_UP   .HS 38,5B           ; Pos X,Y
-            .DA #MAN_HI,/MAN_HI ; Addr SpriteSheet Lo/Hi
-            .HS 01,00           ; Orientation / Vitesse
-            .HS 64,5B           ; Destination X,Y
-            .HS 00,00           ; Ancienne position
-
-PLAYER_DWN  .HS 38,69           ; Pos X,Y
-            .DA #MAN_LO,/MAN_LO ; Addr SpriteSheet Lo/Hi
-            .HS 01,00           ; Orientation / Vitesse
-            .HS 64,69           ; Destination X,Y
-            .HS 00,00           ; Ancienne position
+GEST_X      .HS 10,00           ; Pos X,Orientation
+GEST_Y      .HS 10,00           ; Pos Y,Orientation
 *--------------------------------------
-*           >GODHGR2
-*           LDA #$00
-*           JSR DHGR2_CLR
-*
-*           LDA #$01
-*            STA DBL_DRAW
-*
-*           LDY #$02
-*           JSR SETDCOLOR
-*
-*           LDX #$10
-*           LDY #$10
-*           JSR DPLOT
-*            >SWITCH_PAGE
-*           BRK
-*LOAD_OBJ    JSR OPEN
-*            .HS 1A
-*            .AS "/DEV/SPACE/OBJ/DHGR.TABLES"
-*            >SET_RW_PARAMS OBJMEMLOC,#$70,#$15
-*            JSR READ_AUX
-*            JSR CLOSE
+GEST2_X      .HS 60,FF           ; Pos X,Orientation
+GEST2_Y      .HS 50,00           ; Pos Y,Orientation
+*--------------------------------------
+READBUFF1   .EQ $2000
+*--------------------------------------
+            .MA COMPUTE_MOVE    ; 1 -> GEST buff address, 2 -> MaxVal
+            LDA ]1+1
+            BMI :1
+            INC ]1              ; Orientation positive
+            LDA ]1
+            CMP ]2
+            BNE :5
+            LDA #$FF
+            STA ]1+1
+            JMP :5
 
-*           JSR OPEN
-*           .HS 17
-*           .AS "/DEV/SPACE/OBJ/DATA.OBJ"
-*           >SET_RW_PARAMS DATAMEMLOC,#$C4,#$07
-*           JSR READ_AUX
-*           JSR CLOSE
+:1          DEC ]1              ; Orientation negative
+            BNE :5
+            LDA #$00
+            STA ]1+1
 
-
-
-*            >DRAW_BLOC PLAYER_UP
-
-*            RTS
-
-            .MA MYPLOT
-            LDY ]3
-            JSR SETDCOLOR
-            LDX ]1
-            LDY ]2
-            JSR PLOT
+:5          ; return
             .EM
 *--------------------------------------
+LOAD_PAGE1
+            JSR OPEN
+            .HS 16
+            .AS "/DEV/IMG/MONSTRE1.A2FC"
+            >SET_RW_PARAMS READBUFF1,#$00,#$20
+            JSR RD_TO_AUX
+            JSR RD_TO_MAIN
+            JSR CLOSE
+            RTS
+
 RUN
             >GODHGR2
 			LDA #$00
             JSR DHGR2_CLR
-            STA STORE80_OFF
-            STA PAGE2_OFF
-            STA RAMRD_OFF
-            STA RAMWRT_OFF
-
-			LDA #$00			; Ecriture Page 1
-            STA DBL_DRAW
-			STA $E6
-
             STA STORE80_ON
             STA PAGE2_OFF
             STA RAMRD_OFF
             STA RAMWRT_OFF
-    
-TEST        
-            .MA TBLOC
 
-            ; Ligne haut
-            LDY ]2
-            LDX #$00
-            JSR BLOC
-            .DA #TRUC2,/TRUC2
-            LDY ]2
-            LDX #$0E
-            JSR BLOC
-            .DA #TRUC2,/TRUC2
-
-            ; Ligne basse
-            LDA ]2
-            CLC
-            ADC #$1D
-            TAY
-            LDX #$00
-            JSR BLOC
-            .DA #TRUC2,/TRUC2
-            LDA ]2
-            CLC
-            ADC #$1D
-            TAY
-            LDX #$0E
-            JSR BLOC
-            .DA #TRUC2,/TRUC2
-
-            ; Motif
-            LDY ]2
-            LDX ]1
-            JSR BLOC
-            .DA #TRUC2,/TRUC2
-            LDY ]2
-            LDX ]1
+            JSR LOAD_PAGE1
+LOOP
+            >SETUP_BUFF SAVEBUFF,SAVE_MAIN
+            LDX GEST_X
+            LDY GEST_Y
+            JSR COPY
             JSR BLOC
             .DA #ITEM_1,/ITEM_1
 
-            ; Copy Colle
-            LDY ]2
-            LDX ]1
+            >SETUP_BUFF SAVEBUFF2,SAVE_MAIN
+            LDX GEST2_X
+            LDY GEST2_Y
             JSR COPY
-            LDX ]1
-            LDA ]2
-            CLC
-            ADC #$1D
-            TAY
+            JSR BLOC
+            .DA #CHAIR,/CHAIR
+
+            >SETUP_BUFF SAVEBUFF2,SAVE_MAIN
+            LDX GEST2_X
+            LDY GEST2_Y
             JSR PASTE
-            .EM
 
             >SETUP_BUFF SAVEBUFF,SAVE_MAIN
-
-            >TBLOC #$03,#$00
-            >TBLOC #$0A,#$3C
-            >TBLOC #$11,#$78
-
-
-            LDX #$7D
-
-LOOP        LDY #$3C
-            JSR COPY
-            PHX
-            PHY
-            JSR BLOC
-            .DA #ITEM_1,/ITEM_1
-            PLY
-            PLX
-            >WAITVBL
+            LDX GEST_X
+            LDY GEST_Y
             JSR PASTE
-            
-            DEX
-            BNE LOOP
 
-            BRK
-
-*            >RELOC2AUX D2PLOT,D2PLOTEND
-*            >RELOC2AUX BLOCDRAW,BLOCDRAWEND
-
-*            >DRAW_SCENE ROOM_1_LO,BOARD_LO_X,BOARD_LO_Y
-*            >DRAW_SCENE ROOM_1_HI,BOARD_HI_X,BOARD_HI_Y
-
-*            >SET_POS PLAYER_DWN,#$04,#$05,DOWN
-*            >DRAW_BLOC PLAYER_DWN
-*            >SET_POS PLAYER_UP,#$04,#$05,UP
-*            >DRAW_BLOC PLAYER_UP
-
-GAMELOOP
-*            >MOVE_SPRITE PLAYER_DWN
-*            >MOVE_SPRITE PLAYER_UP
-            >WAITVBL
-            >SWITCH_PAGE
-
-            JMP GAMELOOP
-            BRK
+            >COMPUTE_MOVE GEST_X,#$7D
+            >COMPUTE_MOVE GEST_Y,#$A3
+            >COMPUTE_MOVE GEST2_X,#$7D
+            >COMPUTE_MOVE GEST2_Y,#$A3
+            JMP LOOP
 *--------------------------------------
 MAN
 SAVE /DEV/SPACE/SRC/SPACE.S

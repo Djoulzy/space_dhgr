@@ -81,6 +81,7 @@ LOOP
             LDX GEST_X
             LDY GEST_Y
             JSR COPY
+            >WAITVBL
             JSR BLOC
             .DA #ITEM_1,/ITEM_1
 
@@ -88,6 +89,7 @@ LOOP
             LDX GEST2_X
             LDY GEST2_Y
             JSR COPY
+            >WAITVBL
             JSR BLOC
             .DA #CHAIR,/CHAIR
 

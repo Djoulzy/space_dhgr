@@ -13,7 +13,7 @@ MAIN_MEM	.EQ $C054
 AUX_MEM		.EQ $C055
 HIRESOFF	.EQ $C056
 HIRESON		.EQ $C057
-DHGR_ON		.EQ $C05E
+DHGR_ON		.EQ $C05E			;AN3
 
 IS_PAGE2	.EQ	$C01C
 
@@ -33,15 +33,16 @@ COLOR		.EQ $09
 PTR         .EQ $46
 
 *--------------------------------------
-			.MA	GODHGR2
+			.MA	GODHGR
 			STA GRAPHON			;Turn on GRAPHICS
 			STA HIRESON			;Turn on Hi-res
 			STA FULLON			;Turn on Full screen
 			STA DHGR_ON			;Turn on DHR
-			STA COL80_ON		;Turn on 80 Columns
-			STA STORE80_ON
-			STA RAMRD_OFF
-			STA RAMWRT_OFF
+
+*			STA COL80_ON		;Turn on 80 Columns
+*			STA STORE80_ON
+*			STA RAMRD_OFF
+*			STA RAMWRT_OFF
 			.EM
 *--------------------------------------
 			.MA SWITCH_PAGE

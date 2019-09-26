@@ -5,7 +5,7 @@ AUTO 4,1
             .OP	65C02
 *--------------------------------------
 MLIADDR     .EQ $BF00
-IOBUFF      .EQ $4000
+IOBUFF      .EQ $6000
 REF         .HS 00              ; ProDOS reference number
 *--------------------------------------
 MLIPARAMS   .HS 00              ;number-of-parameters   0853
@@ -107,7 +107,6 @@ RD_TO_MAIN  LDA #$04
             STA MLIPARAMS       ; Params count
             LDA REF             ; get reference number returned by open
             STA MLIPARAMS+1     ; and put in for read
-            STA PAGE2_OFF
             >MLI_CALL #$CA      ; read command
             RTS
 *--------------------------------------
@@ -115,8 +114,34 @@ RD_TO_AUX   LDA #$04
             STA MLIPARAMS
             LDA REF             ; get reference number returned by open
             STA MLIPARAMS+1     ; and put in for read
-            STA PAGE2_ON
-            >MLI_CALL #$CA      ; read command
+            LDA #$CA            ; read command
+            STA MLI+3
+            CLC
+            STA STORE80_ON
+            LDA PAGE2_ON
+            JSR MLI
+            LDA PAGE2_OFF
+            STA STORE80_OFF
+            BCC .1
+            LDX #$EE
+			LDY #$CA
+            BRK
+.1          RTS
+*--------------------------------------
+RD_TO_AUX2   LDA #$04
+            STA MLIPARAMS
+            LDA REF             ; get reference number returned by open
+            STA MLIPARAMS+1     ; and put in for read
+            LDA #$CA              ; open command
+            STA MLI+3
+            CLC
+            STA RAMWRT_ON
+            JSR MLI
+            BCC .1
+            LDX #$EE
+			LDY #$CA
+            BRK
+.1          STA RAMWRT_OFF
             RTS
 *--------------------------------------
 MAN

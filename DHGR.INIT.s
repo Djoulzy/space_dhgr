@@ -5,14 +5,14 @@ NEW
             .LIST OFF
 *--------------------------------------
 GRAPHON		.EQ $C050
-FULLON		.EQ $C052
-MIXED		.EQ $C053
+MIXED_OFF	.EQ $C052
+MIXED_ON	.EQ $C053
 PAGE2_OFF	.EQ $C054
 PAGE2_ON	.EQ $C055
 MAIN_MEM	.EQ $C054
 AUX_MEM		.EQ $C055
-HIRESOFF	.EQ $C056
-HIRESON		.EQ $C057
+HIRES_OFF	.EQ $C056
+HIRES_ON	.EQ $C057
 DHGR_ON		.EQ $C05E			;AN3
 
 IS_PAGE2	.EQ	$C01C
@@ -35,9 +35,10 @@ PTR         .EQ $46
 *--------------------------------------
 			.MA	GODHGR
 			STA GRAPHON			;Turn on GRAPHICS
-			STA HIRESON			;Turn on Hi-res
-			STA FULLON			;Turn on Full screen
+			STA HIRES_ON		;Turn on Hi-res
+			STA MIXED_OFF		;Turn on Full screen
 			STA DHGR_ON			;Turn on DHR
+            STA STORE80_OFF
 
 *			STA COL80_ON		;Turn on 80 Columns
 *			STA STORE80_ON

@@ -59,13 +59,10 @@ PAGE2       .EQ $4000
 LOAD_PAGE1
             JSR OPEN
             .HS 16
-            .AS "/DEV/IMG/MONSTRE2.A2FC"
+            .AS "/DEV/IMG/MONSTRE1.A2FC"
             >SET_RW_PARAMS PAGE1,#$00,#$20
-            STA STORE80_ON
-            STA PAGE2_ON
-            JSR RD_TO_MAIN
-            STA PAGE2_OFF
-            STA STORE80_OFF
+            JSR RD_TO_AUX
+            >SET_RW_PARAMS PAGE1,#$00,#$20
             JSR RD_TO_MAIN
             JSR CLOSE
             RTS
@@ -73,9 +70,9 @@ LOAD_PAGE1
 LOAD_PAGE2
             JSR OPEN
             .HS 16
-            .AS "/DEV/IMG/MONSTRE1.A2FC"
+            .AS "/DEV/IMG/MONSTRE2.A2FC"
             >SET_RW_PARAMS PAGE2,#$00,#$20
-            JSR RD_TO_AUX2
+            JSR RD_TO_AUX
             >SET_RW_PARAMS PAGE2,#$00,#$20
             JSR RD_TO_MAIN
             JSR CLOSE
@@ -95,19 +92,47 @@ SLEEP       LDA #$20
 
 RUN
             >GODHGR
+            LDA #$00
+            JSR DHGR2_CLR
 
             JSR LOAD_PAGE1
-            JSR LOAD_PAGE2
+*           JSR LOAD_PAGE2
+*            JMP ENDCODE
 
-            STA STORE80_OFF
-LOOP        STA PAGE2_ON ;Show PAGE 2
-            JSR SLEEP
-            STA PAGE2_OFF ;Show PAGE 1
-            JSR SLEEP
+            >RELOC2AUX PLOT,PLOTEND
+            >RELOC2AUX COPY,COPYEND
+            >RELOC2AUX PASTE,PASTEEND
+LOOP
+            >SETUP_BUFF SAVEBUFF,SAVE_MAIN
+            LDX GEST_X
+            LDY GEST_Y
+            JSR COPY
+            JSR BLOC
+            .DA #ITEM_1,/ITEM_1
+
+            >SETUP_BUFF SAVEBUFF2,SAVE_MAIN
+            LDX GEST2_X
+            LDY GEST2_Y
+            JSR COPY
+            JSR BLOC
+            .DA #CHAIR,/CHAIR
+
+            >SETUP_BUFF SAVEBUFF2,SAVE_MAIN
+            LDX GEST2_X
+            LDY GEST2_Y
+            JSR PASTE
+
+            >SETUP_BUFF SAVEBUFF,SAVE_MAIN
+            LDX GEST_X
+            LDY GEST_Y
+            JSR PASTE
+
+           >COMPUTE_MOVE GEST_X,#$7D
+           >COMPUTE_MOVE GEST_Y,#$A3
+           >COMPUTE_MOVE GEST2_X,#$7D
+           >COMPUTE_MOVE GEST2_Y,#$A3
+
             JMP LOOP
-    
-            LDA #$EE
-            BRK
 ENDCODE
 *--------------------------------------
 MAN

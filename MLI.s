@@ -114,34 +114,12 @@ RD_TO_AUX   LDA #$04
             STA MLIPARAMS
             LDA REF             ; get reference number returned by open
             STA MLIPARAMS+1     ; and put in for read
-            LDA #$CA            ; read command
-            STA MLI+3
-            CLC
-            STA STORE80_ON
-            LDA PAGE2_ON
-            JSR MLI
-            LDA PAGE2_OFF
-            STA STORE80_OFF
-            BCC .1
-            LDX #$EE
-			LDY #$CA
-            BRK
-.1          RTS
-*--------------------------------------
-RD_TO_AUX2   LDA #$04
-            STA MLIPARAMS
-            LDA REF             ; get reference number returned by open
-            STA MLIPARAMS+1     ; and put in for read
             LDA #$CA              ; open command
             STA MLI+3
             CLC
             STA RAMWRT_ON
             JSR MLI
-            BCC .1
-            LDX #$EE
-			LDY #$CA
-            BRK
-.1          STA RAMWRT_OFF
+            STA RAMWRT_OFF
             RTS
 *--------------------------------------
 MAN

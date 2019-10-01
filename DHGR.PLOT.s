@@ -42,7 +42,7 @@ PLOT_S		LDY MBOFFSET,X		;Find what byte if any in MAIN we are working in
 			TAX
 			PLA
 
-			STA PAGE2_OFF		;Map $2000 to MAIN memory
+;			STA PAGE2_OFF		;Map $2000 to MAIN memory
 			LDA (SCRN_LO),Y		;Load screen data
 			AND MAINAND,X		;Erase pixel bits
 ORMAIN		ORA MAINGR,X		;Draw coloured bits
@@ -58,11 +58,14 @@ AUX			LDY ABOFFSET,X 		;Find what byte if any in AUX we are working in
 			TAX
 			PLA
 
-			STA PAGE2_ON		;Map $2000 to AUX memory
+			STA RAMRD_ON		;Map $2000 to AUX memory
 			LDA (SCRN_LO),Y		;Load screen data
+			STA RAMRD_OFF
 			AND AUXAND,X		;Erase pixel bits
 ORAUX		ORA AUXGR,X			;Draw coloured bits
+			STA RAMWRT_ON
 			STA (SCRN_LO),Y		;Write back to screen
+			STA RAMWRT_OFF
 			PLX
 PLOTEND		RTS 
 *--------------------------------------

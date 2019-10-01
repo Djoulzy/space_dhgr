@@ -123,8 +123,7 @@ BLOC        TXA
             STA ]2,X
             .EM
 *--------------------------------------
-COPY        
-            PHY
+COPY        PHY
             PHX
 
             STY BLOCBUFF+1
@@ -143,15 +142,15 @@ COPY
             LDY BLOCBUFF
 
 .3          
-            STA PAGE2_ON
+            STA RAMRD_ON
             LDA (SCRN_LO),Y
+            STA RAMRD_OFF
 
             PHY
             LDY CPTY
             STA (SAVE_AUX),Y
             PLY
 
-            STA PAGE2_OFF
             LDA (SCRN_LO),Y
             
             PHY
@@ -173,7 +172,7 @@ COPY
 .4          
             PLX
             PLY
-            RTS
+COPYEND     RTS
 *--------------------------------------
 PASTE       PHY
             PHX
@@ -195,14 +194,14 @@ PASTE       PHY
             LDY BLOCBUFF
 
 .3
-            STA PAGE2_ON
             PHY
             LDY CPTY
             LDA (SAVE_AUX),Y
             PLY
+            STA RAMWRT_ON
             STA (SCRN_LO),Y
+            STA RAMWRT_OFF
 
-            STA PAGE2_OFF
             PHY
             LDY CPTY
             LDA (SAVE_MAIN),Y
@@ -222,7 +221,7 @@ PASTE       PHY
 
 .4          PLX
             PLY
-            RTS
+PASTEEND    RTS
 *--------------------------------------
 MAN
 SAVE /DEV/SPACE/SRC/ENGINE.S
